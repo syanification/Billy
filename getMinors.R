@@ -48,11 +48,11 @@
 #'   try(bref_daily_batter(t1="2015-05-10", t2="2015-06-20"))
 #' }
 
-getMinors <- function(t1, t2) {
+getMinors <- function(days) {
 
   tryCatch(
     expr = {
-      payload <- xml2::read_html(paste0("https://www.baseball-reference.com/leagues/daily.fcgi?request=1&type=b&dates=lastndays&lastndays=3650&since=2024-12-01&fromandto=2024-12-01.2024-12-31&level=milb&franch=ANY&stat=b%3AH&stat_value=10"))
+      payload <- xml2::read_html(paste0("https://www.baseball-reference.com/leagues/daily.fcgi?request=1&type=b&dates=lastndays&lastndays=",days,"&since=2024-12-01&fromandto=2024-12-01.2024-12-31&level=milb&franch=ANY&stat=b%3AH&stat_value=10"))
       df <- payload %>%
         rvest::html_elements(xpath = '//*[@id="daily"]') %>%
         rvest::html_table(fill = TRUE)
@@ -99,11 +99,6 @@ getMinors <- function(t1, t2) {
   )
   return(df)
 }
-
-data <- getMinors()
-data %>%
-  dplyr::glimpse()
-
 
 #' @rdname daily_batter_bref
 #' @title **(legacy) Scrape Batter Performance Data Over a Custom Time Frame**

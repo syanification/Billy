@@ -6,7 +6,7 @@ source("getMinors.R")
 # data %>%
 #   dplyr::glimpse()
 
-data <- getMinors() 
+data <- getMinors(3650)
 data %>%
   dplyr::glimpse()
 
