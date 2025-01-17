@@ -26,16 +26,16 @@ print("Minors:")
 
 # minorData1 %>% dplyr::glimpse()
 
-minorData <- getMinors(4650) %>% distinct(Name, Age, .keep_all = TRUE)
-minorData %>% dplyr::glimpse()
+# minorData <- getMinors(4650) %>% distinct(Name, Age, .keep_all = TRUE)
+# minorData %>% dplyr::glimpse()
 
 # Perform an inner join on the Name and Age columns
-# commonData <- inner_join(minorData, majorData, by = "Name")
+commonData <- inner_join(minorData, majorData, by = "Name")
 
-# # Display the resulting data
-# commonData <- commonData %>% select(Name, BA.x, BA.y, PA.x, PA.y, OBP.x, OBP.y)
-# commonData <- commonData %>% drop_na()
-# commonData %>% glimpse()
+# Display the resulting data
+commonData <- commonData %>% select(Name, BA.x, BA.y, PA.x, PA.y, OBP.x, OBP.y)
+commonData <- commonData %>% drop_na()
+commonData %>% glimpse()
 
 # write.csv(commonData, "Data/commonData.csv", row.names = FALSE)
 # write.csv(majorData, "Data/majorData.csv", row.names = FALSE)
