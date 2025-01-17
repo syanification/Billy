@@ -26,7 +26,7 @@ print("Minors:")
 
 # minorData1 %>% dplyr::glimpse()
 
-minorData <- getMinors(3650) %>% distinct(Name, Age, .keep_all = TRUE)
+minorData <- getMinors(4650) %>% distinct(Name, Age, .keep_all = TRUE)
 minorData %>% dplyr::glimpse()
 
 # Perform an inner join on the Name and Age columns
