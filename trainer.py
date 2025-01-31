@@ -1,84 +1,112 @@
 import pandas as pd
 import tensorflow as tf
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
+import numpy as np
+from sklearn.model_selection import train_test_split, KFold
 
-DATA_PATH="Data/commonCleaned.csv"
-EPOCHS=20
+# Load data (modified column names kept as per your example)
+def loadData(csvPath):
+    dataFrame = pd.read_csv(csvPath)
+    inputFeatures = dataFrame[['BA.x', 'OBP.x', 'SLG.x']].values
+    outputTargets = dataFrame[['BA.y', 'OBP.y', 'SLG.y']].values
+    return inputFeatures, outputTargets
 
-# Load and prepare data
-def load_data(csv_path):
-    data = pd.read_csv(csv_path)
-    
-    # Modify these column names according to your CSV structure
-    input_columns = ['BA.x', 'OBP.x', 'SLG.x']  # Replace with your input column names
-    output_columns = ['BA.y', 'OBP.y', 'SLG.y']  # Replace with your output column names
-    
-    X = data[input_columns].values
-    y = data[output_columns].values
-    return X, y
-
-# Build and compile the model
-def create_model():
+def createLinearModel(inputShape):
+    featureNormalizer = tf.keras.layers.Normalization(axis=-1)
     model = tf.keras.Sequential([
-        tf.keras.layers.Dense(64, activation='relu', input_shape=(3,)),
-        tf.keras.layers.Dense(64, activation='relu'),
-        tf.keras.layers.Dense(3)  # Three output nodes
+        tf.keras.Input(shape=(inputShape,)),
+        featureNormalizer,
+        tf.keras.layers.Dense(3, activation='linear')
     ])
-    
-    model.compile(
-        optimizer='adam',
-        loss='mse',  # Mean Squared Error for regression
-        metrics=['mae']  # Mean Absolute Error
-    )
-    return model
+    return model, featureNormalizer
 
-# Main training function
-def train_model(csv_path, epochs=100, batch_size=32):
-    # Load data
-    X, y = load_data(csv_path)
-    
-    # Split data
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42
+def train(csvPath, epochs, numFolds, alpha):
+    # Load and split data
+    allFeatures, allTargets = loadData(csvPath)
+    xTrain, xTest, yTrain, yTest = train_test_split(
+        allFeatures, allTargets, test_size=0.2, random_state=42
     )
-    
-    # Scale features
-    scaler_X = StandardScaler()
-    X_train = scaler_X.fit_transform(X_train)
-    X_test = scaler_X.transform(X_test)
-    
-    # Scale targets
-    scaler_y = StandardScaler()
-    y_train = scaler_y.fit_transform(y_train)
-    y_test = scaler_y.transform(y_test)
-    
-    # Create and train model
-    model = create_model()
-    history = model.fit(
-        X_train, y_train,
-        validation_split=0.2,
-        epochs=epochs,
-        batch_size=batch_size,
-        verbose=1
+
+    # Initialize KFold
+    kFold = KFold(n_splits=numFolds, shuffle=True, random_state=42)
+    foldNumber = 0
+    foldLosses = []
+    foldMaes = []
+
+    # K-fold cross validation
+    for trainIndices, valIndices in kFold.split(xTrain):
+        foldNumber += 1
+        print(f"\nTraining fold {foldNumber}/{numFolds}")
+        
+        # Split fold data
+        xTrainFold = xTrain[trainIndices]
+        yTrainFold = yTrain[trainIndices]
+        xValFold = xTrain[valIndices]
+        yValFold = yTrain[valIndices]
+
+        # Create and adapt model for this fold
+        currentModel, normalizer = createLinearModel(xTrain.shape[1])
+        normalizer.adapt(xTrainFold)
+        
+        currentModel.compile(
+            optimizer=tf.keras.optimizers.Adam(learning_rate=alpha),
+            loss='mse',
+            metrics=['mae']
+        )
+
+        # Train with validation data
+        currentModel.fit(
+            xTrainFold, yTrainFold,
+            validation_data=(xValFold, yValFold),
+            epochs=epochs,
+            verbose=1
+        )
+
+        # Evaluate fold performance
+        valLoss, valMae = currentModel.evaluate(xValFold, yValFold, verbose=0)
+        foldLosses.append(valLoss)
+        foldMaes.append(valMae)
+        print(f"Fold {foldNumber} validation loss: {valLoss:.4f}, MAE: {valMae:.4f}")
+
+    # Print cross-validation results
+    print("\nCross-validation results:")
+    print(f"Average loss: {np.mean(foldLosses):.4f} (±{np.std(foldLosses):.4f})")
+    print(f"Average MAE: {np.mean(foldMaes):.4f} (±{np.std(foldMaes):.4f})")
+
+    # Train final model on entire dataset
+    print("\nTraining final model on entire training set...")
+    finalModel, finalNormalizer = createLinearModel(xTrain.shape[1])
+    finalNormalizer.adapt(xTrain)
+    finalModel.compile(
+        optimizer=tf.keras.optimizers.Adam(learning_rate=0.1),
+        loss='mse',
+        metrics=['mae']
     )
-    
-    # Evaluate
-    test_loss, test_mae = model.evaluate(X_test, y_test, verbose=0)
-    print(f"\nTest Loss: {test_loss:.4f}")
-    print(f"Test MAE: {test_mae:.4f}")
-    
+    finalModel.fit(xTrain, yTrain, epochs=epochs, verbose=1)
+
+    # Evaluate on test set
+    testLoss, testMae = finalModel.evaluate(xTest, yTest, verbose=0)
+    print(f"\nFinal test loss: {testLoss:.4f}")
+    print(f"Final test MAE: {testMae:.4f}")
+
     # Save model
-    model.save("multi_output_model.keras")
-    print("Model saved as multi_output_model.keras")
-    
-    return model, history
+    # finalModel.save("tfLinearWithPreprocessing")
+    # print("\nModel saved as 'tfLinearWithPreprocessing'")
+    return finalModel, testLoss, testMae
 
-# Example usage
+def predictWithModel(modelPath, newData):
+    loadedModel = tf.keras.models.load_model(modelPath)
+    return loadedModel.predict(newData)
+
 if __name__ == "__main__":
-    # Replace 'your_data.csv' with your CSV file path
-    trained_model, training_history = train_model(
-        csv_path=DATA_PATH,
-        epochs=EPOCHS,
-        batch_size=32
-    )
+    epochs = 50
+    numFolds = 5
+    alpha = 0.1
+
+    #   Implement nested loop that goes through and tests each combination
+    #   of hyperparameters to find optimal
+    trainedModel = train('Data/commonCleaned.csv', epochs, numFolds, alpha)
+    
+    # Example prediction
+    # sampleInput = np.array([[0.8, 0.8, 0.8]], dtype=np.float32)
+    # prediction = predictWithModel("tfLinearWithPreprocessing", sampleInput)
+    # print(f"\nSample prediction: {prediction}")
