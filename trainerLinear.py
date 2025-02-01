@@ -77,7 +77,7 @@ def train(csvPath, epochs, numFolds, alpha):
     finalModel, finalNormalizer = createLinearModel(xTrain.shape[1])
     finalNormalizer.adapt(xTrain)
     finalModel.compile(
-        optimizer=tf.keras.optimizers.Adam(learning_rate=0.1),
+        optimizer=tf.keras.optimizers.Adam(learning_rate=alpha),
         loss='mse',
         metrics=['mae']
     )
@@ -87,6 +87,8 @@ def train(csvPath, epochs, numFolds, alpha):
     testLoss, testMae = finalModel.evaluate(xTest, yTest, verbose=0)
     print(f"\nFinal test loss: {testLoss:.4f}")
     print(f"Final test MAE: {testMae:.4f}")
+    print(f"numEpochs: {epochs}")
+    print(f"Learning rate: {alpha}")
 
     # Save model
     # finalModel.save("tfLinearWithPreprocessing")
@@ -102,9 +104,26 @@ if __name__ == "__main__":
     numFolds = 5
     alpha = 0.1
 
+    alphas = [0.001,0.01,0.1,0.2,0.5]
+
     #   Implement nested loop that goes through and tests each combination
     #   of hyperparameters to find optimal
-    trainedModel = train('Data/commonCleaned.csv', epochs, numFolds, alpha)
+    results = []
+
+    for e in range(10, 110, 10):
+        for a in alphas:
+            finalModel, testLoss, testMae = train('Data/commonCleaned.csv', e, numFolds, a)
+            # Append the results to the list
+            results.append({'numEpochs': e, 'learningRate': a, 'testLoss': testLoss, 'testMae': testMae})
+
+    # Convert the list to a DataFrame
+    resultsDF = pd.DataFrame(results)
+
+    # Save the DataFrame to a CSV file with an index
+    resultsDF.to_csv('Training Evaluation/trainingResultsLinear.csv', index=False)
+
+
+    # trainedModel = train('Data/commonCleaned.csv', epochs, numFolds, alpha)
     
     # Example prediction
     # sampleInput = np.array([[0.8, 0.8, 0.8]], dtype=np.float32)

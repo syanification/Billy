@@ -4,7 +4,7 @@ import matplotlib.colors as mcolors
 import numpy as np
 
 # Load the data
-df = pd.read_csv('trainingResultsLinear.csv')
+df = pd.read_csv('Training Evaluation/trainingResultsLinear.csv')
 
 df = df[df['numEpochs'] >= 20]
 
@@ -40,7 +40,7 @@ for lr, group in groups:
 # Customize the plot
 ax.set_xlabel('Number of Epochs')
 ax.set_ylabel('Test Loss')
-ax.set_title('Test Loss vs. Number of Epochs by Learning Rate (DNN)')
+ax.set_title('Test Loss vs. Number of Epochs by Learning Rate (Lin Reg)')
 ax.legend(bbox_to_anchor=(1.05, 1), loc='upper left')  # Legend outside the plot
 ax.grid(True, linestyle='--')
 
