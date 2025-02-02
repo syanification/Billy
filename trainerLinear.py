@@ -81,7 +81,7 @@ def train(csvPath, epochs, numFolds, alpha):
         loss='mse',
         metrics=['mae']
     )
-    finalModel.fit(xTrain, yTrain, epochs=epochs, verbose=1)
+    history = finalModel.fit(xTrain, yTrain, epochs=epochs, verbose=1)
 
     # Evaluate on test set
     testLoss, testMae = finalModel.evaluate(xTest, yTest, verbose=0)
@@ -93,7 +93,7 @@ def train(csvPath, epochs, numFolds, alpha):
     # Save model
     # finalModel.save("tfLinearWithPreprocessing")
     # print("\nModel saved as 'tfLinearWithPreprocessing'")
-    return finalModel, testLoss, testMae
+    return finalModel, testLoss, testMae, history.history
 
 def predictWithModel(modelPath, newData):
     loadedModel = tf.keras.models.load_model(modelPath)
@@ -112,7 +112,7 @@ if __name__ == "__main__":
 
     for e in range(1, 50):
         for a in alphas:
-            finalModel, testLoss, testMae = train('Data/commonCleaned.csv', e, numFolds, a)
+            finalModel, testLoss, testMae, history = train('Data/commonCleaned.csv', e, numFolds, a)
             # Append the results to the list
             results.append({'numEpochs': e, 'learningRate': a, 'testLoss': testLoss, 'testMae': testMae})
 

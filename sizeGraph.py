@@ -34,8 +34,8 @@ for model_name, group in groups:
 
 # Customize the plot
 ax.set_xlabel('Number of Epochs')
-ax.set_ylabel('Test Loss')
-ax.set_title('Test Loss vs. Number of Epochs by Model Size')
+ax.set_ylabel('Test MAE')
+ax.set_title('Test MAE vs. Number of Epochs by Model Size')
 ax.legend(bbox_to_anchor=(1.05, 1), loc='upper left')  # Legend outside the plot
 ax.grid(True, linestyle='--')
 

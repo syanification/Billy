@@ -4,9 +4,9 @@ import matplotlib.colors as mcolors
 import numpy as np
 
 # Load the data
-df = pd.read_csv('Training Evaluation/trainingResultsLinear.csv')
+df = pd.read_csv('Training Evaluation/trainingResultsDNNDropout.csv')
 
-df = df[df['numEpochs'] >= 20]
+df = df[df['numEpochs'] <= 20]
 
 # Group by learningRate and sort each group by numEpochs
 groups = df.groupby('learningRate')
@@ -29,7 +29,7 @@ for lr, group in groups:
     sorted_group = group.sort_values('numEpochs')  # Ensure epochs are plotted in order
     ax.plot(
         sorted_group['numEpochs'], 
-        sorted_group['testLoss'], 
+        sorted_group['testMae'], 
         linestyle='-', 
         linewidth=1,  # Thinner lines
         alpha=0.7,  # Slightly transparent
@@ -39,8 +39,8 @@ for lr, group in groups:
 
 # Customize the plot
 ax.set_xlabel('Number of Epochs')
-ax.set_ylabel('Test Loss')
-ax.set_title('Test Loss vs. Number of Epochs by Learning Rate (Lin Reg)')
+ax.set_ylabel('Test MAE')
+ax.set_title('Test MAE vs. Number of Epochs by Learning Rate (DNN + Dropout)')
 ax.legend(bbox_to_anchor=(1.05, 1), loc='upper left')  # Legend outside the plot
 ax.grid(True, linestyle='--')
 
