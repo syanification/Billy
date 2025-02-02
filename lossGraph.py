@@ -4,7 +4,7 @@ import matplotlib.colors as mcolors
 import numpy as np
 
 # Load the data
-df = pd.read_csv('Training Evaluation/trainingResultsDNNDropout.csv')
+df = pd.read_csv('Training Evaluation/trainingResultsDNN.csv')
 
 df = df[df['numEpochs'] <= 20]
 

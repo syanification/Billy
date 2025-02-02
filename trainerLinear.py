@@ -120,7 +120,7 @@ if __name__ == "__main__":
     resultsDF = pd.DataFrame(results)
 
     # Save the DataFrame to a CSV file with an index
-    resultsDF.to_csv('Training Evaluation/trainingResultsLinearMicro.csv', index=False)
+    resultsDF.to_csv('Training Evaluation/trainingResultsLinear.csv', index=False)
 
 
     # trainedModel = train('Data/commonCleaned.csv', epochs, numFolds, alpha)

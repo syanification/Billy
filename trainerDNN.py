@@ -112,7 +112,7 @@ if __name__ == "__main__":
     #   of hyperparameters to find optimal
     results = []
 
-    for e in range(10, 110, 10):
+    for e in range(1,25):
         for a in alphas:
             finalModel, testLoss, testMae = train('Data/commonCleaned.csv', e, numFolds, a)
             # Append the results to the list
@@ -122,7 +122,7 @@ if __name__ == "__main__":
     resultsDF = pd.DataFrame(results)
 
     # Save the DataFrame to a CSV file with an index
-    resultsDF.to_csv('Training Evaluation/training_results_DNN.csv', index=False)
+    resultsDF.to_csv('Training Evaluation/trainingResultsDNN.csv', index=False)
 
 
     # trainedModel = train('Data/commonCleaned.csv', epochs, numFolds, alpha)
