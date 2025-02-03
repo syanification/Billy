@@ -1,121 +1,81 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vertex AI Predictor</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 20px;
-        }
-        .input-group {
-            margin-bottom: 15px;
-        }
-        input, textarea {
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-        }
-        button {
-            padding: 10px 20px;
-            background-color: #4285f4;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        #result {
-            margin-top: 20px;
-            padding: 15px;
-            border: 1px solid #ddd;
-            white-space: pre-wrap;
-        }
-    </style>
-</head>
-<body>
-    <h1>Vertex AI Prediction Request</h1>
-    
-    <div class="input-group">
-        <label for="projectId">Project ID:</label>
-        <input type="text" id="projectId" value="YOUR-PROJECT-ID">
-    </div>
+<!doctype html>
 
-    <div class="input-group">
-        <label for="modelId">Model ID:</label>
-        <input type="text" id="modelId" value="YOUR-MODEL-ID">
-    </div>
+<html>
+    <head>
+        <!-- Recommended meta tags -->
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
 
-    <div class="input-group">
-        <label for="location">Location:</label>
-        <input type="text" id="location" value="us-central1">
-    </div>
+        <!-- PyScript CSS -->
+        <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
+        <!-- CSS for examples -->
+        <link rel="stylesheet" href="./assets/css/examples.css" />
 
-    <div class="input-group">
-        <label for="instances">Instances (JSON format):</label>
-        <textarea id="instances" rows="5">
-[
-    {"feature1": "value1", "feature2": "value2"}
-]</textarea>
-    </div>
+        <!-- This script tag bootstraps PyScript -->
+        <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
 
-    <button onclick="makePrediction()">Get Prediction</button>
-    
-    <div id="result"></div>
+        <!-- for splashscreen -->
+        <style>
+            #loading { outline: none; border: none; background: transparent }
+        </style>
+        <script type="module">
+            const loading = document.getElementById('loading');
+            addEventListener('py:ready', () => loading.close());
+            loading.showModal();
+        </script>
 
-    <script>
-        async function makePrediction() {
-            const projectId = document.getElementById('projectId').value;
-            const modelId = document.getElementById('modelId').value;
-            const location = document.getElementById('location').value;
-            const instances = document.getElementById('instances').value;
+        <!-- will be set via PyDom -->
+        <title id="header-title"></title>
+        <link rel="icon" type="image/png" href="./assets/favicon.png" />
+    </head>
 
-            const resultDiv = document.getElementById('result');
-            resultDiv.textContent = 'Processing...';
+    <body>
+        <dialog id="loading">
+            <h1>Loading...</h1>
+        </dialog>
 
-            try {
-                // Load the Google API client
-                await new Promise((resolve, reject) => {
-                    gapi.load('client:auth2', resolve);
-                });
+        <nav class="navbar" style="background-color: #000000">
+            <div class="app-header">
+                <a href="/">
+                    <img src="./assets/logo.png" class="logo" />
+                </a>
 
-                // Initialize the client with your API key and scopes
-                await gapi.client.init({
-                    apiKey: 'YOUR_API_KEY',  // Replace with your API key
-                    clientId: 'YOUR_CLIENT_ID',  // Replace with your client ID
-                    scope: 'https://www.googleapis.com/auth/cloud-platform',
-                });
+                <!-- will be set via PyDom -->
+                <a class="title" id="page-title" href="" style="color: #f0ab3c"></a>
+            </div>
+        </nav>
 
-                // Get auth token
-                const authResponse = await gapi.auth2.getAuthInstance().signIn();
-                const token = authResponse.getAuthResponse().id_token;
+        <br />
+        
+        <!-- will be set via PyDom -->
+        <div id="page-message"></div>
 
-                // Vertex AI endpoint
-                const endpoint = `https://${location}-aiplatform.googleapis.com/v1/projects/${projectId}/locations/${location}/publishers/google/models/${modelId}:predict`;
+        <div id="pandas-source">
+            <h3>Data Source</h3>
+            <input type="text" id="txt-url" class="py-input" size="70" />
+            <button
+                type="submit"
+                id="btn-load"
+                class="py-button"
+                py-click="loadFromURL"
+            >
+                Load CSV
+            </button>
+        </div>
 
-                // Make the prediction request
-                const response = await fetch(endpoint, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        instances: JSON.parse(instances)
-                    })
-                });
+        <div id="pandas-output" hidden>
+            <h3>Output</h3>
+            <div id="pandas-output-inner"></div>
+        </div>
 
-                const data = await response.json();
-                resultDiv.textContent = JSON.stringify(data, null, 2);
-            } catch (error) {
-                resultDiv.textContent = `Error: ${error.message}`;
-            }
-        }
-    </script>
-    
-    <!-- Load Google API client -->
-    <script src="https://apis.google.com/js/client.js"></script>
-</body>
+        <div id="pandas-dev-console" hidden>
+            <h3>Dev Console</h3>
+            <script type="py" terminal></script>
+        </div>
+
+        <section class="pyscript">
+            <script type="py" src="./main.py" config="./pyscript.toml"></script>
+        </section>
+
+    </body>
 </html>
