@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚾ Billy - Major League Forecaster ⚾</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #191a1c;
+            color: #ddeaeb;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .input-group {
+            margin-bottom: 10px;
+            max-width: 300px;
+            display: flex;
+            align-items: center;
+        }
+        .input-group label {
+            margin-right: 10px;
+            flex: 1;
+            min-width: 250px; /* Ensure labels are wide enough */
+        }
+        .input-group input {
+            flex: 2;
+            padding: 8px;
+            box-sizing: border-box;
+            background-color: #3b3b3b; /* Set input background color */
+            color: white; /* Set input text color */
+            border: 1px solid #555; /* Optional: Add a border for better visibility */
+        }
+        /* Remove arrows from number input fields */
+        input[type=number]::-webkit-outer-spin-button,
+        input[type=number]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield; /* Firefox */
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+            transform-style: preserve-3d;
+            margin-bottom: 50px; /* Add space between button and result div */
+            margin-top: 20px;
+        }
+        .box {
+            position: relative;
+            transform-style: preserve-3d;
+            border-radius: 25px;
+            width: 350px;
+            height: auto; /* Adjust height as needed */
+            background-color: #181c25; /* Dark box background color */
+            padding: 0; /* Adjust padding to remove top and bottom padding */
+            font-size: 1.2em;
+            font-weight: bold;
+            white-space: pre-wrap;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 2px solid #ddeaeb;
+        }
+        .box::before {
+            content: "";
+            position: absolute;
+            inset: 0px;
+            background: linear-gradient(
+              180deg, 
+              #00FFFF, /* Bright cyan at the top */
+              #00E5FF, 
+              #00CCFF /* Dark cyan at the bottom */
+            );
+            filter: blur(10px);
+            transform: translate3d(0px, 0px, -1px);
+            border-radius: inherit;
+            pointer-events: none;
+        }
+        .result-row {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            padding-top: 5px; /* Remove padding */
+            padding-bottom: 5px; /* Remove padding */
+            margin: 0; /* Remove margin */
+            margin-left: -1px;
+            border: 1px solid #ddeaeb;
+        }
+        .result-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0; /* Remove padding */
+            margin: 0; /* Remove margin */
+            /* border: 1px solid #555; */
+        }
+        .result-column div {
+            padding: 0; /* Remove padding */
+            margin: 0; /* Remove margin */
+            /* border: 1px solid #555; */
+        }
+        #majors-ba {
+            padding: 0; /* Remove padding */
+            margin: 0; /* Remove margin */
+        }
+        #majors-obp, #majors-slg {
+            padding: 0; /* Remove padding */
+            margin: 0; /* Remove margin */
+            /* border: 1px solid #555; */
+        }
+    </style>
+</head>
+<body>
+    <h1>⚾ Billy - Minor to Major League Forecaster ⚾</h1>
+
+    <h2>Enter Minor League Stats:</h2>
+    
+    <div class="input-group">
+        <label for="ba">Batting Average (BA):</label>
+        <input type="number" step="any" id="ba" required>
+    </div>
+
+    <div class="input-group">
+        <label for="obp">On-Base Percentage (OBP):</label>
+        <input type="number" step="any" id="obp" required>
+    </div>
+
+    <div class="input-group">
+        <label for="slg">Slugging Percentage (SLG):</label>
+        <input type="number" step="any" id="slg" required>
+    </div>
+
+    <button onclick="makePrediction()">Get Prediction</button>
+    
+    <div id="result" class="box" style="display: none;">
+        <div class="result-row">
+            <div class="result-column">
+                <div id="majors-ba"></div>
+            </div>
+            <div class="result-column">
+                <div id="majors-obp"></div>
+            </div>
+            <div class="result-column">
+                <div id="majors-slg"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/app.js"></script>
+    
+    <!-- Load Google API client -->
+    <script src="https://apis.google.com/js/client.js"></script>
+</body>
+</html>

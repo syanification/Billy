@@ -1,2 +1,5 @@
 Data/
 Auth/
+Webpage-Safe/node_modules/
+Webpage-Safe/.env
+Webpage-Safe/.DS_Store
