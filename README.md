@@ -37,7 +37,7 @@
     <a href="https://billy-forecaster-35cf250c0967.herokuapp.com/"><strong>Visit the Site! »</strong></a>
     <br />
     <br />
-    <a href="https://youtu.be/8zYbjrqWoa4">View Demo</a>
+    <a href="https://youtu.be/dB1BBQ7oqvg?si=fXOmFDEUcb_NOgSN">View Demo</a>
     &middot;
     <a href="https://github.com/syanification/Billy/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
     &middot;
